@@ -28,7 +28,7 @@
        register: result
 
      - name: Creating new namespace for Loki Stack
-       command: kubectl create ns loki-stak
+       command: kubectl create ns loki-stack
        when: 'result.stdout != ""'
 
       
