@@ -80,3 +80,12 @@
                helm list -A
        register: outs
      - debug: var=outs.stdout_lines
+
+
+     - name: MSG
+       shell: |
+               echo "If Prometheus operator and Prometheus instance was installed through helm chart and if you want to use thanos remote write then. !!! Please make sure remote wrtie API configured in prometheus instance 
+               #### kubectl edit prom -n monitoring ####
+               Add remoteWrite: - url: http://receiver-write.monitoring.svc.cluster.local:10908/api/v1/receive under prometheus spec"
+       register: outs
+     - debug: var=outs.stdout_lines
