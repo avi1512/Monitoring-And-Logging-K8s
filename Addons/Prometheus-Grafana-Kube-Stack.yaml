@@ -61,7 +61,7 @@
 
      - name: Installing Prometheus And Grafana
        shell: |
-               helm install prometheus-grafana-stack prometheus-community/kube-prometheus-stack -f /root/pvc-prometheus-grafana.yaml --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false -n monitoring
+               helm install prometheus prometheus-community/kube-prometheus-stack -f /root/pvc-prometheus-grafana.yaml --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false -n monitoring
    
 
      - name: Replace Grafana Service ClusterIP To NodePort
