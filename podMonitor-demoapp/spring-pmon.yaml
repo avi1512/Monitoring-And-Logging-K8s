@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: spring-pmon
+  labels:
+    app: spring-app
+  namespace: demo
+spec:
+  podMetricsEndpoints:
+  - port: spring-port
+    path: /internal/metrics
+  selector:
+    matchLabels:
+      app: spring-app
+  podTargetLabels:
+  - spring-app

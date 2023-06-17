@@ -2,12 +2,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo1-app
-  namespace: demo1
+  name: nodejs-app
+  namespace: demo
 spec:
   selector:
     matchLabels:
-      app: demo1-app
+      app: nodejs-app
 
 ### Default labels for Prometheus Grafana stack ###
      # release: prometheus
@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       labels:
-        app: demo1-app
+        app: nodejs-app
 
 ### Default labels for Prometheus Grafana stack ###
        # release: prometheus
@@ -23,9 +23,9 @@ spec:
     spec:
       containers:
       - image: aputra/express-073:latest
-        name: express
+        name: nodejs-express
         ports:
-        - name: demo-app-port
+        - name: nodejs-port
           containerPort: 8081
         resources:
           limits:
