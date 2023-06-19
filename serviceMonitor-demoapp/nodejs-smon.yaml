@@ -25,3 +25,6 @@ spec:
 
 ### Default labels for Prometheus Grafana stack ###
       #release: prometheus
+
+  targetLabels:
+  - nodejs-app

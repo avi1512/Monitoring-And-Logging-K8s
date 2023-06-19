@@ -20,4 +20,5 @@ spec:
         image: docker.io/nirvanarsc/my-app
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - name: spring-port
+          containerPort: 8080
