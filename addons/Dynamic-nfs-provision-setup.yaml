@@ -1,7 +1,7 @@
 ---
  - name: Dynamic NFS Storage Provisioning Setup Play
    hosts: k8smaster
-   gather_facts: false
+   gather_facts: true
    
    tasks:
      - name: checking Helm tool is installed or not
@@ -10,13 +10,26 @@
        failed_when: false
        changed_when: false
      
-     - name: Installing Helm tool
+     - name: Installing Helm tool on Redhat
        shell: |
                yum install wget -y
                wget https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
                tar -zxf helm-v3.6.3-linux-amd64.tar.gz
                mv linux-amd64/helm /usr/local/bin/
-       when: "'helm' not in out.stdout"
+       when: 
+         - "'helm' not in out.stdout"
+         - ansible_facts['os_family'] == "RedHat"
+  
+
+     - name: Installing Helm tool on Debian
+       shell: |
+               apt update && apt install wget -y
+               wget https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
+               tar -zxf helm-v3.6.3-linux-amd64.tar.gz
+               mv linux-amd64/helm /usr/local/bin/
+       when: 
+         - "'helm' not in out.stdout"
+         - ansible_facts['os_family'] == "Debian"
   
      - debug:
          msg: Already Helm tool is installed
@@ -24,28 +37,50 @@
 
  - name: Installing NFS package on Worker nodes
    hosts: k8snodes
-   gather_facts: false
+   gather_facts: true
 
+     
    tasks:
-     - command: yum install nfs-utils -y
+     - name: Installing NFS on Redhat
+       shell: |
+               yum install nfs-utils -y
+       when: ansible_facts['os_family'] == "RedHat"
+
+     - name: Installing NFS on Debian
+       shell: |
+               apt update && apt install nfs-kernel-server rpcbind -y
+       when: ansible_facts['os_family'] == "Debian"
  
 
  - hosts: k8smaster
-   gather_facts: false
+   gather_facts: true
+   vars_prompt:
+   - name: nfs
+     prompt: "Enter NFS Server IP"
+     private: no
 
    tasks:
  
      - name: Installing NFS package on Master node
        shell: |
                yum install nfs-utils -y
-               mkdir /mnt/kubedata
+               mkdir /tmp/nfs/kubedata
+       when: ansible_facts['os_family'] == "RedHat"
+
+
+     - name: Installing NFS package on Master node
+       shell: |
+               apt update && apt install nfs-kernel-server rpcbind -y
+               mkdir -p /tmp/nfs/kubedata
+       when: ansible_facts['os_family'] == "Debian"
+         
     
      - name: Exporting NFS path
        blockinfile:
          dest: /etc/exports
          block:
                |
-                /mnt/kubedata    *(rw,sync,no_root_squash)
+                /tmp/nfs/kubedata *(rw,fsid=1,sync,no_root_squash,no_subtree_check)
 
      - name: reload the export NFS path and start the NFS service
        shell:
@@ -54,8 +89,12 @@
               systemctl enable nfs-server
               systemctl start nfs-server
 
+
      - name: Creating new namespace for NFS dynamic storage
-       command: kubectl create ns nfs-storage
+       shell: |
+               export KUBECONFIG=/etc/kubernetes/admin.conf
+               kubectl create ns nfs-storage
+
 
      - name: Adding Dynamic NFS helm repo and updating the repo
        shell:
@@ -63,13 +102,16 @@
               helm repo add nfs https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
               helm repo update
 
+
      - name: Installing Dynamic NFS Provisioning
        shell: |
-               helm install nfs-storage nfs/nfs-subdir-external-provisioner -n nfs-storage --set nfs.server=k8smaster --set nfs.path=/mnt/kubedata --set storageClass.defaultClass=true > /tmp/nfs.outs
+               export KUBECONFIG=/etc/kubernetes/admin.conf
+               helm install nfs-storage nfs/nfs-subdir-external-provisioner -n nfs-storage --set nfs.server={{nfs}} --set nfs.path=/tmp/nfs/kubedata --set storageClass.defaultClass=true > /tmp/nfs.outs
 
      - name: Verify the Installation
        shell: 
              |
+              export KUBECONFIG=/etc/kubernetes/admin.conf
               helm list --all-namespaces
        register: outs
      - debug: var=outs.stdout_lines
