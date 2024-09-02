@@ -23,9 +23,20 @@
        when: "'helm' in out.stdout"
 
 
+     - shell: helm list -A | grep -i prometheus
+       ignore_errors: true
+       register: out
+
+
+     - shell: echo 'Prometheus And Grafana Stack is Already deployed'
+       ignore_errors: true
+       when: "'prometheus' in out.stdout"
+
+
      - name: Creating new namespace for Prometheus And Grafana Stack
        command: kubectl create ns monitoring
        ignore_errors: true
+       when: "'prometheus' not in out.stdout"
 
       
      - name: Adding Prometheus repo and updating helm repo
@@ -33,6 +44,7 @@
                helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                helm repo update
                touch /tmp/pvc-prometheus-grafana.yaml
+       when: "'prometheus' not in out.stdout"
 
 
      - name: Adding PVC for Prometheus and Grafana
@@ -58,22 +70,28 @@
                     #storageClassName: nfs-client
                     accessModes: ["ReadWriteOnce"]
                     size: 1Gi   
+       when: "'prometheus' not in out.stdout"
      
 
      - name: Installing Prometheus And Grafana
        shell: |
                helm install prometheus prometheus-community/kube-prometheus-stack -f /tmp/pvc-prometheus-grafana.yaml --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false -n monitoring
+       when: "'prometheus' not in out.stdout"
    
 
      - name: Replace Grafana Service ClusterIP To NodePort
        shell: "kubectl get svc prometheus-grafana -n monitoring -o yaml | sed 's/type: ClusterIP/type: NodePort/g' | kubectl replace -f -"
+       when: "'prometheus' not in out.stdout"
+
 
      - name: Replace Promethus-Alertmanager Service ClusterIP To NodePort
        shell: "kubectl get svc prometheus-kube-prometheus-alertmanager -n monitoring -o yaml | sed 's/type: ClusterIP/type: NodePort/g' | kubectl replace -f -"
+       when: "'prometheus' not in out.stdout"
 
 
      - name: Replace Promethus Service ClusterIP To NodePort
        shell: "kubectl get svc prometheus-kube-prometheus-prometheus -n monitoring -o yaml | sed 's/type: ClusterIP/type: NodePort/g' | kubectl replace -f -"
+       when: "'prometheus' not in out.stdout"
 
 
      - name: Verify Installation
