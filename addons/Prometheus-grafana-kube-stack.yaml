@@ -29,6 +29,8 @@
 
 
      - shell: echo 'Prometheus And Grafana Stack is Already deployed'
+       register: outs
+     - debug: var=outs.stdout_lines
        ignore_errors: true
        when: "'prometheus' in out.stdout"
 
