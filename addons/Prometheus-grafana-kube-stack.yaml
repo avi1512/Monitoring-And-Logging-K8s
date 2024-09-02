@@ -32,12 +32,12 @@
        shell: |
                helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                helm repo update
-               touch /root/pvc-prometheus-grafana.yaml
+               touch /tmp/pvc-prometheus-grafana.yaml
 
 
      - name: Adding PVC for Prometheus and Grafana
        blockinfile:
-         dest: /root/pvc-prometheus-grafana.yaml
+         dest: /tmp/pvc-prometheus-grafana.yaml
          block:
                |
                 prometheus:
@@ -62,7 +62,7 @@
 
      - name: Installing Prometheus And Grafana
        shell: |
-               helm install prometheus prometheus-community/kube-prometheus-stack -f /root/pvc-prometheus-grafana.yaml --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false -n monitoring
+               helm install prometheus prometheus-community/kube-prometheus-stack -f /tmp/pvc-prometheus-grafana.yaml --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false -n monitoring
    
 
      - name: Replace Grafana Service ClusterIP To NodePort
