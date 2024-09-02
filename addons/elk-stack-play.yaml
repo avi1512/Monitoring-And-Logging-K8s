@@ -1,0 +1,17 @@
+---
+ - name: ELK Setup Play
+   hosts: localhost
+   gather_facts: false
+   
+   tasks:
+     - name: Checking ELK Stack Deployed Already in K8S
+       shell: kubectl get elk-stack
+       register: result
+
+     - name: Creating new namespace for Minio
+       command: kubectl apply -f addons/ELK-stack-K8s/k8s-namespace.yaml -f addons/ELK-stack-K8s/. -f addons/ELK-stack-K8s/filebeat/.
+       when: 'result.stdout != ""'
+
+     - debug:
+         msg: ELK Stack is Already deployed
+       when: 'result.stdout == ""'

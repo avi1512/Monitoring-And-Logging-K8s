@@ -44,7 +44,7 @@
                     storageSpec:
                       volumeClaimTemplate:
                         spec:
-                          storageClassName: nfs-client
+                          #storageClassName: nfs-client
                           accessModes: ["ReadWriteOnce"]
                           resources:
                             requests:
@@ -54,7 +54,7 @@
                   persistence:
                     type: pvc
                     enabled: true
-                    storageClassName: nfs-client
+                    #storageClassName: nfs-client
                     accessModes: ["ReadWriteOnce"]
                     size: 1Gi   
      
