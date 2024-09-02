@@ -25,6 +25,7 @@
 
      - name: Creating new namespace for Prometheus And Grafana Stack
        command: kubectl create ns monitoring
+       ignore_errors: true
 
       
      - name: Adding Prometheus repo and updating helm repo
