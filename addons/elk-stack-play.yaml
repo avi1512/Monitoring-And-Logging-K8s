@@ -5,10 +5,11 @@
    
    tasks:
      - name: Checking ELK Stack Deployed Already in K8S
-       shell: kubectl get elk-stack
+       shell: kubectl get ns | grep -i 'elk-stack'
        register: result
+       ignore_errors: true
 
-     - name: Creating new namespace for Minio
+     - name: Deploying ELK stack 
        command: kubectl apply -f addons/ELK-stack-K8s/k8s-namespace.yaml -f addons/ELK-stack-K8s/. -f addons/ELK-stack-K8s/filebeat/.
        when: 'result.stdout != ""'
 

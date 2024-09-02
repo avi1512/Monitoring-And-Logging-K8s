@@ -1,6 +1,6 @@
 ---
  - name: Prometheus And Grafana Stack Setup Play
-   hosts: k8smaster
+   hosts: localhost
    gather_facts: false
    
    tasks:
