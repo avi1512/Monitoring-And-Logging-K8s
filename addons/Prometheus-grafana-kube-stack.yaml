@@ -29,15 +29,12 @@
        changed_when: false
 
 
-     - shell: echo 'Prometheus And Grafana Stack is Already deployed'
-       register: outs
-     - debug: var=outs.stdout_lines
-       failed_when: false
-       changed_when: false
+     - debug:
+         msg: Promehteus and Grafana stack is Already deployed
        when: "'prometheus' in out.stdout"
 
 
-     - name: Creating new namespace for Prometheus And Grafana Stack
+     - name: Creating new namespace for Prometheus And Grafana Stack and deploying
        command: kubectl create ns monitoring
        failed_when: false
        changed_when: false
@@ -103,7 +100,9 @@
        shell: |
                helm list -A
        register: outs
+       when: "'prometheus' not in out.stdout"
      - debug: var=outs.stdout_lines
+       when: "'prometheus' not in out.stdout"
 
 
      - name: MSG
