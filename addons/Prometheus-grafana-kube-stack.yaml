@@ -24,20 +24,23 @@
 
 
      - shell: helm list -A | grep -i prometheus
-       ignore_errors: true
        register: out
+       failed_when: false
+       changed_when: false
 
 
      - shell: echo 'Prometheus And Grafana Stack is Already deployed'
        register: outs
      - debug: var=outs.stdout_lines
-       ignore_errors: true
+       failed_when: false
+       changed_when: false
        when: "'prometheus' in out.stdout"
 
 
      - name: Creating new namespace for Prometheus And Grafana Stack
        command: kubectl create ns monitoring
-       ignore_errors: true
+       failed_when: false
+       changed_when: false
        when: "'prometheus' not in out.stdout"
 
       

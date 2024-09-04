@@ -7,7 +7,9 @@
      - name: Checking ELK Stack Deployed Already in K8S
        shell: kubectl get ns | grep -i 'elk-stack'
        register: result
-       ignore_errors: true
+       failed_when: false
+       changed_when: false
+       #ignore_errors: true
 
      - name: Deploying ELK stack 
        shell: |
