@@ -17,7 +17,8 @@
                rm -rf Monitoring-And-Logging-K8s
                git clone https://github.com/avi1512/Monitoring-And-Logging-K8s.git
                cd Monitoring-And-Logging-K8s/
-               kubectl apply -f /tmp/Monitoring-And-Logging-K8s/addons/ELK-stack-K8s/k8s-namespace.yaml -f /tmp/Monitoring-And-Logging-K8s/addons/ELK-stack-K8s/. -f /tmp/Monitoring-And-Logging-K8s/addons/ELK-stack-K8s/filebeat/.
+               git checkout modify
+               kubectl apply -f addons/ELK-stack-K8s/k8s-namespace.yaml -f addons/ELK-stack-K8s/. -f addons/ELK-stack-K8s/filebeat/.
        when: "'elk-stack' not in result.stdout"
 
      - debug:
